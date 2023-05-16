@@ -1,0 +1,62 @@
+# depslib dependency file v1.0
+1684262986 source:c:\users\administrator\desktop\nosymonkey\detourapihook.cpp
+	"debug.hpp"
+	"helpers.hpp"
+	"dllShadowLoad.hpp"
+	"shellcodePrepare.hpp"
+	<utility>
+	<map>
+
+1682558275 c:\users\administrator\desktop\nosymonkey\debug.hpp
+	<iostream>
+	<string>
+	<windows.h>
+
+1684260786 c:\users\administrator\desktop\nosymonkey\helpers.hpp
+	<iostream>
+	<string>
+	<windows.h>
+
+1682880461 c:\users\administrator\desktop\nosymonkey\dllshadowload.hpp
+
+1684260807 source:c:\users\administrator\desktop\nosymonkey\dllshadowload.cpp
+	"helpers.hpp"
+	"debug.hpp"
+	"remoteExecute.hpp"
+	"shellcodePrepare.hpp"
+
+1682890156 c:\users\administrator\desktop\nosymonkey\remoteexecute.hpp
+	<vector>
+
+1682886124 source:c:\users\administrator\desktop\nosymonkey\helpers.cpp
+	<iostream>
+	<string>
+	<windows.h>
+	"debug.hpp"
+
+1682552950 source:c:\users\administrator\desktop\nosymonkey\privileges.cpp
+	<windows.h>
+	<stdio.h>
+	"debug.hpp"
+
+1682895600 source:c:\users\administrator\desktop\nosymonkey\process.cpp
+	"debug.hpp"
+	<psapi.h>
+	<tlhelp32.h>
+
+1684260415 source:c:\users\administrator\desktop\nosymonkey\remoteexecute.cpp
+	"helpers.hpp"
+	"debug.hpp"
+	<vector>
+
+1684262969 source:c:\users\administrator\desktop\nosymonkey\directsyscalhook.cpp
+	"debug.hpp"
+	"helpers.hpp"
+	"shellcodePrepare.hpp"
+
+1684260879 c:\users\administrator\desktop\nosymonkey\shellcodeprepare.hpp
+
+1684262455 source:c:\users\administrator\desktop\nosymonkey\shellcodeprepare.cpp
+	"debug.hpp"
+	"helpers.hpp"
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="nosymonkey" />
+		<Option pch_mode="2" />
+		<Option compiler="clang" />
+		<Build>
+			<Target title="dll">
+				<Option output="bin/dll/nosymonkey" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/dll/" />
+				<Option type="2" />
+				<Option compiler="clang" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++20" />
+					<Add option="-masm=intel" />
+					<Add option="-DVERBOSE" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-ladvapi32" />
+					<Add option="-lpsapi" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="debug.hpp" />
+		<Unit filename="detourAPIHook.cpp" />
+		<Unit filename="detourAPIHook.hpp" />
+		<Unit filename="directSyscalHook.cpp" />
+		<Unit filename="directSyscalHook.hpp" />
+		<Unit filename="dllShadowLoad.cpp" />
+		<Unit filename="dllShadowLoad.hpp" />
+		<Unit filename="helpers.cpp" />
+		<Unit filename="helpers.hpp" />
+		<Unit filename="nosymonkey.hpp" />
+		<Unit filename="privileges.cpp" />
+		<Unit filename="process.cpp" />
+		<Unit filename="process.hpp" />
+		<Unit filename="remoteExecute.cpp" />
+		<Unit filename="remoteExecute.hpp" />
+		<Unit filename="shellcodePrepare.cpp" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

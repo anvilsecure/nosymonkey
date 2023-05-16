@@ -1,0 +1,1 @@
+DWORD getProcessId(string processName);
