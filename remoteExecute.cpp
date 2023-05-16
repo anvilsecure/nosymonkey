@@ -1,6 +1,7 @@
 #include "helpers.hpp"
 #include "debug.hpp"
 #include <vector>
+#include "shellcodePrepare.hpp"
 #define DATA_SECTION 0x400
 #define SDATA_SECTION "0x400"
 #define HOOKED_FUNC "NtTerminateThread"
@@ -144,6 +145,21 @@ uintptr_t execWithParams(DWORD dwPid, uintptr_t remoteFunc, uintptr_t* dwGLE, ve
         debugcry("remoteExecute");
     }
     debugcry("getSyscallNumber");
+    return 0;
+}
+
+uintptr_t copyAndExecWithParams(DWORD dwPid, LPCVOID localFunc, uintptr_t* dwGLE, vector<uintptr_t> args)
+{
+    string sFunc((char*)localFunc, 0x400);
+    replaceIATCalls(sFunc, (uintptr_t)localFunc);
+    uintptr_t remoteFunc = writeToProcess(dwPid, sFunc, 0);
+    if(remoteFunc)
+    {
+        uintptr_t retVal = execWithParams(dwPid, remoteFunc, dwGLE, args);
+        remoteFree(dwPid, remoteFunc);
+        return retVal;
+    }
+    debugcry("writeToProcess");
     return 0;
 }
 

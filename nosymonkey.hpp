@@ -34,4 +34,5 @@ bool givePrivs(DWORD dwPid);
 uintptr_t execWithParams(DWORD dwPid, uintptr_t remoteFunc, uintptr_t* dwGLE, vector<uintptr_t> args);
 void _init_nosymonkey(uintptr_t nosyFunction);
 uintptr_t dupHandle(DWORD dwPid, HANDLE hHandle);
+uintptr_t copyAndExecWithParams(DWORD dwPid, LPCVOID localFunc, uintptr_t* dwGLE, vector<uintptr_t> args);
 #define init_nosymonkey() (_init_nosymonkey((uintptr_t) helper))
