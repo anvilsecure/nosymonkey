@@ -42,6 +42,7 @@
 		<Unit filename="remoteExecute.cpp" />
 		<Unit filename="remoteExecute.hpp" />
 		<Unit filename="shellcodePrepare.cpp" />
+		<Unit filename="shellcodePrepare.hpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

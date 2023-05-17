@@ -79,7 +79,10 @@ void manuallyTrigger(DWORD dwPid)
     {
         string sRet(1,0xc3);
         uintptr_t remoteRet = writeToProcess(dwPid, sRet, 0);
-        CreateRemoteThread(hProcess, 0, 0, (LPTHREAD_START_ROUTINE) remoteRet, 0, 0, 0);
+        HANDLE hThread = CreateRemoteThread(hProcess, 0, 0, (LPTHREAD_START_ROUTINE) remoteRet, 0, 0, 0);
+        WaitForSingleObject(hThread, INFINITE);
+        remoteFree(dwPid, remoteRet);
+        CloseHandle(hThread);
         CloseHandle(hProcess);
     }
     debugcry("OpenProcess");
