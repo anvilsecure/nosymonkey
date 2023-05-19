@@ -32,6 +32,8 @@ You can include -DVERBOSE for extended verbosity on the library. Or use the prec
 I use CodeBlocks as my IDE (I know, old habits die hard) that's what those **cbp** files are. You can use it too :)
 
 ## Usage
+Just link with nosymonkey.lib or nosymonkey_verbose.lib (if you want output to stdout) and include nosymonkey.hpp in your file.
+
 I use C++ strings to handle memory because they are easy to use and you don't have to worry about freeing them.
 The exposed APIs so far are:
 
