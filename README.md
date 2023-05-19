@@ -45,6 +45,16 @@ Takes a process id, a pointer to a function you'd like to use for your hook and 
 
 Returns true on success, false on error.
 
+**bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string dllName)**
+
+Takes:
+* A process ID.
+* A pointer to a local function you'd like to use for your hook.
+* An API name.
+* A dll name.
+
+Returns true on success, false on error.
+
 **uintptr_t writeToProcess(DWORD dwPid, string memory, uintptr_t ptr)**
 
 Takes a process id, a string with the memory you'd like to write and the target address. If you put 0 as the target address, it will allocate it for you.
@@ -138,6 +148,7 @@ Returns the return value of your function (the remote RAX).
 * I haven't wrote unit tests: Examples work a bit like regression tests, but there are no unit tests. I'm gonna try to include them in the future.
 * You need to link against -ladvapi32 and -lpsapi.
 * You need to call init_nosymonkey() before you do anything.
+* detourAPIHook creates a copy of the DLL. In the future I might use MemoryModule to reflectively load a copy.
 
 ## Feedback
 
