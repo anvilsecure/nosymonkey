@@ -16,6 +16,9 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lpsapi" />
+					<Add option="-ladvapi32" />
+					<Add library="../../build/bin/nosymonkey_verbose.lib" />
 				</Linker>
 			</Target>
 		</Build>

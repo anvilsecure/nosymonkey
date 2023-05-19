@@ -8,7 +8,6 @@
 #define debugcry(s)
 #endif // VERBOSE
 using namespace std;
-bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string dllName);
 #ifndef __ORIGINAL_CALL__
 #define __ORIGINAL_CALL__
 template<typename... Args>  NTSTATUS __attribute__((aligned (8)))originalCall(Args... args) //Dummy function to replace in code.
@@ -23,6 +22,7 @@ void helper()
 }
 #endif // __ORIGINAL_CALL__
 bool hookAPIDirectSyscall(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName);
+bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string dllName);
 uintptr_t writeToProcess(DWORD dwPid, string memory, uintptr_t ptr);
 bool readFromProcess(DWORD dwPid, string &memory, uintptr_t ptr, DWORD dwSize);
 bool replacestr(string& str, const string& from, const string& to);
