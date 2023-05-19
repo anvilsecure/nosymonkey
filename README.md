@@ -29,6 +29,8 @@ Do not attempt to compile it for anything other than Windows x64, otherwise be p
 
 You can include -DVERBOSE for extended verbosity on the library. Or use the precompiled one.
 
+I use CodeBlocks as my IDE (I know, old habits die hard) that's what those **cbp** files are. You can use it too :)
+
 ## Usage
 I use C++ strings to handle memory because they are easy to use and you don't have to worry about freeing them.
 The exposed APIs so far are:
