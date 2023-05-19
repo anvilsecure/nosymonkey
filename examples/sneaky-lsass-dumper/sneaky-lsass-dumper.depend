@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1684503717 source:c:\users\administrator\desktop\nosymonkey\examples\sneaky-lsass-dumper\main.cpp
+	"debug.hpp"
+	"../../include/nosymonkey.hpp"
+
+1684502230 c:\users\administrator\desktop\nosymonkey\examples\sneaky-lsass-dumper\debug.hpp
+	<iostream>
+	<string>
+	<windows.h>
+
+1684502819 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
+	<iostream>
+	<string>
+	<vector>
+	<windows.h>
+
