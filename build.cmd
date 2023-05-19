@@ -29,5 +29,5 @@ clang++.exe -m64 -O2 -std=c++20 -masm=intel -DVERBOSE -Isrc -c src\remoteExecute
 clang++.exe -m64 -O2 -std=c++20 -masm=intel -DVERBOSE -Isrc -c src\shellcodePrepare.cpp -o build\obj\src\shellcodePrepare_v.o
 
 echo Compiling library...
-llvm-ar.exe r build\bin\libnosymonkey.a build\obj\src\detourAPIHook.o build\obj\src\directSyscalHook.o build\obj\src\dllShadowLoad.o build\obj\src\helpers.o build\obj\src\privileges.o build\obj\src\process.o build\obj\src\remoteExecute.o build\obj\src\shellcodePrepare.o
-llvm-ar.exe r build\bin\libnosymonkey_verbose.a build\obj\src\detourAPIHook_v.o build\obj\src\directSyscalHook_v.o build\obj\src\dllShadowLoad_v.o build\obj\src\helpers.o build\obj\src\privileges_v.o build\obj\src\process_v.o build\obj\src\remoteExecute_v.o build\obj\src\shellcodePrepare_v.o
+llvm-ar.exe r build\bin\nosymonkey.lib build\obj\src\detourAPIHook.o build\obj\src\directSyscalHook.o build\obj\src\dllShadowLoad.o build\obj\src\helpers.o build\obj\src\privileges.o build\obj\src\process.o build\obj\src\remoteExecute.o build\obj\src\shellcodePrepare.o
+llvm-ar.exe r build\bin\nosymonkey_verbose.lib build\obj\src\detourAPIHook_v.o build\obj\src\directSyscalHook_v.o build\obj\src\dllShadowLoad_v.o build\obj\src\helpers.o build\obj\src\privileges_v.o build\obj\src\process_v.o build\obj\src\remoteExecute_v.o build\obj\src\shellcodePrepare_v.o
