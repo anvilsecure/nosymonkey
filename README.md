@@ -32,6 +32,10 @@ You can include -DVERBOSE for extended verbosity on the library. Or use the prec
 I use CodeBlocks as my IDE (I know, old habits die hard) that's what those **cbp** files are. You can use it too :)
 
 ## Usage
+Just link with nosymonkey.lib or nosymonkey_verbose.lib (if you want output to stdout) and include nosymonkey.hpp in your project.
+**Make sure to link with advapi32 and psapi (-ladvapi32 -lpsapi).** I will try to remove this requisite in the future.
+**You need to call init_nosymonkey() before you do anything.** This is to identify the call to originalCall(). I'll try to remove this requisite in the future as well.
+
 I use C++ strings to handle memory because they are easy to use and you don't have to worry about freeing them.
 The exposed APIs so far are:
 
@@ -132,6 +136,8 @@ Returns the return value of your function (the remote RAX).
 * Threading /should/ work: This was coded with multi-threading taken into consideration; but I haven't extensively tested so I can't be sure.
 * This is probably not performance-optimized: This was coded without performance in mind, it works but it's not super performing.
 * I haven't wrote unit tests: Examples work a bit like regression tests, but there are no unit tests. I'm gonna try to include them in the future.
+* You need to link against -ladvapi32 and -lpsapi.
+* You need to call init_nosymonkey() before you do anything.
 
 ## Feedback
 
