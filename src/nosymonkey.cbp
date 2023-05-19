@@ -7,9 +7,9 @@
 		<Option compiler="clang" />
 		<Build>
 			<Target title="dll">
-				<Option output="bin/dll/nosymonkey" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/bin/nosymonkey" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/dll/" />
+				<Option object_output="../build/obj/" />
 				<Option type="2" />
 				<Option compiler="clang" />
 				<Option createDefFile="1" />
@@ -17,7 +17,6 @@
 					<Add option="-O2" />
 					<Add option="-std=c++20" />
 					<Add option="-masm=intel" />
-					<Add option="-DVERBOSE" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -26,6 +25,7 @@
 				</Linker>
 			</Target>
 		</Build>
+		<Unit filename="../include/nosymonkey.hpp" />
 		<Unit filename="debug.hpp" />
 		<Unit filename="detourAPIHook.cpp" />
 		<Unit filename="detourAPIHook.hpp" />
@@ -35,7 +35,6 @@
 		<Unit filename="dllShadowLoad.hpp" />
 		<Unit filename="helpers.cpp" />
 		<Unit filename="helpers.hpp" />
-		<Unit filename="nosymonkey.hpp" />
 		<Unit filename="privileges.cpp" />
 		<Unit filename="process.cpp" />
 		<Unit filename="process.hpp" />

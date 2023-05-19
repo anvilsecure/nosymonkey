@@ -6,8 +6,9 @@
 bool relativeToAbsolute(string &sOutput, char *pszData, string opcode)
 {
     sOutput.append(opcode);
+    string movRDI("\x48\x8b\x3d"); //I know this is ugly but well...
     string sData;
-    if(opcode.size() == 2) //Extra check in case of a CALL PTR
+    if(opcode.size() == 2 || opcode.compare(movRDI) == 0) //Extra check in case of a CALL PTR
     {
         MEMORY_BASIC_INFORMATION mInfo;
         memset(&mInfo, 0, sizeof(mInfo));
@@ -25,6 +26,7 @@ bool relativeToAbsolute(string &sOutput, char *pszData, string opcode)
         cout << "Accessible memory. String = " << pszData << endl;
         #endif // VERBOSE
         sData.assign(pszData, strlen(pszData)+1);
+        sData.append("\xCC\xCC\xCC"); //Alignment
     }
     DWORD dwNewOffset = 5; // Size of indirect 4 byte jmp.
     sOutput.append((char*)&dwNewOffset, sizeof(DWORD));
@@ -42,8 +44,9 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart)
     string leaRdx("\x48\x8d\x15");
     string leaR8("\x4c\x8d\x05");
     string leaR9("\x4c\x8d\x0d");
+    string movRDI("\x48\x8b\x3d");
     string callSignature("\xFF\x15");
-    vector<string> vCompares = {leaRax, leaRcx, leaRdx, leaR8, leaR9, callSignature};
+    vector<string> vCompares = {leaRax, leaRcx, leaRdx, leaR8, leaR9, movRDI, callSignature};
     string sOut;
     for(long i = 0; i < shellCode.size(); i++)
     {
