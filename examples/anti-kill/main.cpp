@@ -16,10 +16,12 @@ DWORD dwTargetProcess = 0;
 
 uintptr_t OpenProcesHook(uintptr_t dwDesiredAccess, uintptr_t bInheritHandle, uintptr_t dwProcessId)
 {
+    //We may reference global variables, which will be copied and the relative offset fixed.
     if(dwProcessId == dwTargetProcess)
     {
+        //SetLastError is from Kernel32.dll so it's cool to call it.
         SetLastError(5);
-        return originalCall(1, 2, 3);
+        return 0;
     }
     return originalCall(dwDesiredAccess, bInheritHandle, dwProcessId);
 }
@@ -28,20 +30,17 @@ int main(int argc, char **argv)
 {
     if(argc != 3) usage(argv[0]);
     dwTargetProcess = stoul(argv[2]);
-    if(givePrivs(GetCurrentProcessId()))
+    DWORD dwPid = getProcessId(argv[1]);
+    if(dwPid)
     {
-        DWORD dwPid = getProcessId(argv[1]);
-        if(dwPid)
+        //Kernelbase.dll is the correct dll for OpenProcess.
+        //Otherwise you'll hook a jmp to Kernel32.dll, you'll be stuck in a loop and overrun your call stack.
+        if(detourAPIHook(dwPid, (LPVOID)OpenProcesHook, "OpenProcess", "kernelbase.dll"))
         {
-            if(detourAPIHook(dwPid, (LPVOID)OpenProcesHook, "OpenProcess", "kernelbase.dll"))
-            {
-                Sleep(-1);
-                return 0;
-            }
-            debugcry("detourAPIHook");
+            return 0;
         }
-        debugcry("getProcessId");
+        debugcry("detourAPIHook");
     }
-    debugcry("givePrivs");
+    debugcry("getProcessId");
     return 1;
 }

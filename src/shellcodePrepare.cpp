@@ -7,6 +7,7 @@
 void replaceIATCalls(string &shellCode, uintptr_t memStart)
 {
     string leaRax("\x48\x8d\x05");
+    string leaRbx("\x48\x8d\x1d");
     string leaRcx("\x48\x8d\x0d");
     string leaRdx("\x48\x8d\x15");
     string leaR8("\x4c\x8d\x05");
@@ -25,11 +26,12 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart)
     string movR8QWORD("\x48\x8b\x05");
     string movR9QWORD("\x48\x8b\x0D");
     string movRDIQWORD("\x48\x8b\x3d");
+    string movR14QWORD("\x4C\x8b\x35");
     string callSignature("\xFF\x15");
-    vector<string> vCompares = {leaRax, leaRcx, leaRdx, leaR8, leaR9,movEAXDWORD,
+    vector<string> vCompares = {leaRax, leaRcx, leaRbx, leaRdx, leaR8, leaR9,movEAXDWORD,
     movEBXDWORD,movECXDWORD,movEDXDWORD,movR8DDWORD,movR9DDWORD,movEDIDWORD,
     //movRAXQWORD,
-    movRBXQWORD,movRCXQWORD,movRDXQWORD,movR8QWORD,movR9QWORD, movRDIQWORD, callSignature};
+    movRBXQWORD,movRCXQWORD,movRDXQWORD,movR8QWORD,movR9QWORD, movRDIQWORD, movR14QWORD, callSignature};
     for(long i = 0; i < shellCode.size(); i++)
     {
         for (auto& it : vCompares)
@@ -42,18 +44,10 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart)
                 DWORD dwOffset = 0;
                 memcpy(&dwOffset, shellCode.substr(i+it.size(), 4).c_str(), sizeof(DWORD)); //Get offset for IAT pointer.
                 dwOffset +=it.size()+4;
-                MEMORY_BASIC_INFORMATION mInfo;
-                memset(&mInfo, 0, sizeof(mInfo));
                 #ifdef VERBOSE
                 cout << "Offset is 0x" << (hex) << (dwOffset - (it.size()+4)) << endl;
-                cout << "Target address is 0x" << (hex) << (memStart + dwOffset + i) << endl;
                 #endif // VERBOSE
-                VirtualQuery((LPCVOID)(memStart + dwOffset + i), &mInfo, sizeof(mInfo)); //Is target memory accessible?
-                #ifdef VERBOSE
-                cout << "Memory state is " << (hex) << mInfo.State << endl;
-                cout << "Memory protection is " << (hex) << mInfo.Protect << endl;
-                #endif // VERBOSE
-                if(mInfo.State == MEM_COMMIT)
+                if(isValidMemory(memStart + dwOffset + i))
                 {
                     char *pszData = (char*) (memStart + dwOffset + i);
                     #ifdef VERBOSE

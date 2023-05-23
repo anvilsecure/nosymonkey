@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 #include <windows.h>
 #include "debug.hpp"
@@ -108,18 +107,58 @@ bool getSyscallNumber(string apiName, DWORD *sysCall)
     return true;
 }
 
-void replaceCallIfValid(string &sCode, size_t index)
+bool isValidMemory(uintptr_t ptr)
 {
-    if(sCode[index] == '\xE8' && index < sCode.size() - 5)
+    MEMORY_BASIC_INFORMATION mInfo;
+    memset(&mInfo, 0, sizeof(mInfo));
+    cout << "Target address is 0x" << (hex) << ptr << endl;
+    #ifdef VERBOSE
+    cout << "Target address is 0x" << (hex) << ptr << endl;
+    #endif // VERBOSE
+    VirtualQuery((LPCVOID)(ptr), &mInfo, sizeof(mInfo)); //Is target memory accessible?
+    #ifdef VERBOSE
+    if(mInfo.State == MEM_COMMIT) cout << "Valid memory. State = 0x" << mInfo.State << endl;
+    else cout << "Invalid memory. State = 0x" << mInfo.State << endl;
+    #endif // VERBOSE
+    if(mInfo.State == MEM_COMMIT) return true;
+    else return false;
+}
+
+bool isOriginalFunction(uintptr_t targetMemory)
+{
+    //Not Implemented.
+    /*string sOrig("\xCC\xCC\xCC\xCC\xCC"); //Probably not the best idea, but the best I can think of right now.
+    string sTarg((char*)targetMemory, 0x8);
+    if(sOrig.compare(sTarg) == 0) return true;
+    else return false;*/
+    return true;
+}
+
+void replaceCallIfValid(string &sCode, uintptr_t baseMemory, string originalFunc)
+{
+    size_t originalSize = sCode.size();
+    for(size_t index = 0; index < originalSize; index++)
     {
-        int32_t callDiff = 0;
-        memcpy(&callDiff, sCode.c_str()+index+1, sizeof(int32_t));
-        cout << "Calldiff = 0x" << (hex) << callDiff << endl;
-        if(abs(callDiff) < HEURISTIC_TOLERANCE)
+        if(sCode[index] == '\xE8' && index < originalSize - 5)
         {
-            int32_t newDiff = sCode.size() - index -5;
-            string sDiff((char*)&newDiff, sizeof(int32_t));
-            sCode.replace(index+1, 4, sDiff);
+            int32_t callDiff = 0;
+            memcpy(&callDiff, sCode.c_str()+index+1, sizeof(int32_t));
+            uintptr_t targetMemory = baseMemory + index + callDiff -5;
+            if(isValidMemory(targetMemory))
+            {
+                if(isOriginalFunction(targetMemory))
+                {
+                    sCode.append("\xCC\xCC\xCC\xCC"); //Alignment
+                    int32_t newDiff = sCode.size() - index -5;
+                    string sDiff((char*)&newDiff, sizeof(int32_t));
+                    sCode.replace(index+1, 4, sDiff);
+                    sCode.append(originalFunc);
+                }
+                else
+                {
+                    //Not implemented.
+                }
+            }
         }
     }
 }

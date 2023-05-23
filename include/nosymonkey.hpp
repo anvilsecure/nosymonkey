@@ -10,13 +10,18 @@
 using namespace std;
 #ifndef __ORIGINAL_CALL__
 #define __ORIGINAL_CALL__
-template<typename... Args> NTSTATUS __attribute__((noinline))originalCall(Args... args) //Dummy function to replace in code.
+//This function will never be called, but I need to prevent a call to it from being optimized.
+#pragma clang optimize off //Sorry, optimization will break the calling convention.
+template<typename... Args> uintptr_t __attribute__((noinline)) originalCall(Args... args) //Dummy function to replace in code.
 {
     asm("int $3");
-    return 0;
+    asm("int $3");
+    asm("int $3");
+    asm("int $3");
+    asm("int $3");
+    asm("int $3");
+    asm("int $3");
 }
-
-#endif // __ORIGINAL_CALL__
 bool hookAPIDirectSyscall(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName);
 bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string dllName);
 uintptr_t writeToProcess(DWORD dwPid, string memory, uintptr_t ptr);
@@ -30,3 +35,5 @@ bool givePrivs(DWORD dwPid);
 uintptr_t execWithParams(DWORD dwPid, uintptr_t remoteFunc, uintptr_t* dwGLE, vector<uintptr_t> args);
 uintptr_t dupHandle(DWORD dwPid, HANDLE hHandle);
 uintptr_t copyAndExecWithParams(DWORD dwPid, LPCVOID localFunc, uintptr_t* dwGLE, vector<uintptr_t> args);
+#endif // __ORIGINAL_CALL__
+

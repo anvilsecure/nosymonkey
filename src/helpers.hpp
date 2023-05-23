@@ -9,4 +9,5 @@ bool replacestr(string& str, const string& from, const string& to);
 bool getSyscallNumber(string apiName, DWORD *sysCall);
 bool remoteFree(DWORD dwPid, uintptr_t ptr);
 void manuallyTrigger(DWORD dwPid);
-void replaceCallIfValid(string &sCode, size_t index);
+void replaceCallIfValid(string &sCode, uintptr_t baseMemory, string originalFunc);
+bool isValidMemory(uintptr_t ptr);
