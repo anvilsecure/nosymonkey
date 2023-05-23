@@ -158,3 +158,4 @@ I'm open to receiving feedback! I'm always learning so please feel free to submi
 
 * I'm trying to hook api X from kernel32.dll and it crashes with STACK_OVERFLOW: Kernel32.dll is now just a wrapper for Kernelbase.dll. Use the latter.
 * Hooking Rtl* from ntdll.dll doesn't work with hookAPIDirectSyscall: Rtl are run-time libraries that are run on user space. There is no context switch and no system call. For this reason you cannot use direct system calls. You may only do this with functions that start with "Nt" or "Zw".
+* It crashes! Send me an issue with the source that's failing for you and I'll do my best to help out.
