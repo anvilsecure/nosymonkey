@@ -3,39 +3,6 @@
 #define STRINGS_START 0x800
 #include <vector>
 
-bool relativeToAbsolute(string &sOutput, char *pszData, string opcode)
-{
-    sOutput.append(opcode);
-    string movRDI("\x48\x8b\x3d"); //I know this is ugly but well...
-    string sData;
-    if(opcode.size() == 2 || opcode.compare(movRDI) == 0) //Extra check in case of a CALL PTR
-    {
-        MEMORY_BASIC_INFORMATION mInfo;
-        memset(&mInfo, 0, sizeof(mInfo));
-        uintptr_t APIcall = *((uintptr_t*)(pszData)); //Get address from IAT.
-        VirtualQuery((LPCVOID)(APIcall), &mInfo, sizeof(mInfo)); //Is it a valid address?
-        if(mInfo.State != MEM_COMMIT) return false;
-        #ifdef VERBOSE
-        cout << "Accessible memory. API Address = 0x" << (hex) << APIcall << endl;
-        #endif // VERBOSE
-        sData.assign((char*)&APIcall, sizeof(uintptr_t));
-    }
-    else
-    {
-        #ifdef VERBOSE
-        cout << "Accessible memory. String = " << pszData << endl;
-        #endif // VERBOSE
-        sData.assign(pszData, strlen(pszData)+1);
-        sData.append("\xCC\xCC\xCC"); //Alignment
-    }
-    DWORD dwNewOffset = 5; // Size of indirect 4 byte jmp.
-    sOutput.append((char*)&dwNewOffset, sizeof(DWORD));
-    DWORD dwJmpSize = sData.size();
-    sOutput.append("\xE9"); //4 byte jmp.
-    sOutput.append((char*)&dwJmpSize, sizeof(DWORD)); //Skip data.
-    sOutput.append(sData); //append data.
-    return true;
-}
 
 void replaceIATCalls(string &shellCode, uintptr_t memStart)
 {
@@ -44,13 +11,27 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart)
     string leaRdx("\x48\x8d\x15");
     string leaR8("\x4c\x8d\x05");
     string leaR9("\x4c\x8d\x0d");
-    string movRDI("\x48\x8b\x3d");
+    string movEAXDWORD("\x8B\x05");
+    string movEBXDWORD("\x8B\x1D");
+    string movECXDWORD("\x8B\x0D");
+    string movEDXDWORD("\x8B\x15");
+    string movR8DDWORD("\x44\x8B\x05");
+    string movR9DDWORD("\x44\x8B\x0D");
+    string movEDIDWORD("\x8B\x3D");
+    //string movRAXQWORD("\x48\xA1");
+    string movRBXQWORD("\x48\x8b\x1d");
+    string movRCXQWORD("\x48\x8b\x0d");
+    string movRDXQWORD("\x48\x8b\x15");
+    string movR8QWORD("\x48\x8b\x05");
+    string movR9QWORD("\x48\x8b\x0D");
+    string movRDIQWORD("\x48\x8b\x3d");
     string callSignature("\xFF\x15");
-    vector<string> vCompares = {leaRax, leaRcx, leaRdx, leaR8, leaR9, movRDI, callSignature};
-    string sOut;
+    vector<string> vCompares = {leaRax, leaRcx, leaRdx, leaR8, leaR9,movEAXDWORD,
+    movEBXDWORD,movECXDWORD,movEDXDWORD,movR8DDWORD,movR9DDWORD,movEDIDWORD,
+    //movRAXQWORD,
+    movRBXQWORD,movRCXQWORD,movRDXQWORD,movR8QWORD,movR9QWORD, movRDIQWORD, callSignature};
     for(long i = 0; i < shellCode.size(); i++)
     {
-        bool bFound = false;
         for (auto& it : vCompares)
         {
             if(shellCode.substr(i, it.size()).compare(it) == 0 && i + (it.size()+4) < shellCode.size())
@@ -74,18 +55,21 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart)
                 #endif // VERBOSE
                 if(mInfo.State == MEM_COMMIT)
                 {
-                    string sAbsolute;
-                    if(relativeToAbsolute(sAbsolute, (char*)(memStart+dwOffset + i), it))
-                    {
-                        sOut.append(sAbsolute);
-                        i+=3+it.size();
-                        bFound = true;
-                        break;
-                    }
+                    char *pszData = (char*) (memStart + dwOffset + i);
+                    #ifdef VERBOSE
+                    cout << "Accessible memory. String = " << pszData << endl;
+                    #endif // VERBOSE
+                    size_t dataLen = strlen(pszData)+1;
+                    DWORD dwNewOffset = shellCode.size() - i - sizeof(DWORD) - it.size();
+                    if(dataLen < sizeof(uintptr_t)) dataLen = sizeof(uintptr_t);
+                    string sData(pszData, dataLen);
+                    string sNewOffset((char*)&dwNewOffset, sizeof(DWORD));
+                    shellCode.append(sData);
+                    shellCode.replace(i+it.size(), sNewOffset.size(), sNewOffset);
+                    i+=3+it.size();
+                    break;
                 }
             }
         }
-        if(!bFound) sOut.append(shellCode.substr(i, 1));
     }
-    shellCode = sOut;
 }

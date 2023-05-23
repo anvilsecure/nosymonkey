@@ -9,3 +9,4 @@ bool replacestr(string& str, const string& from, const string& to);
 bool getSyscallNumber(string apiName, DWORD *sysCall);
 bool remoteFree(DWORD dwPid, uintptr_t ptr);
 void manuallyTrigger(DWORD dwPid);
+void replaceCallIfValid(string &sCode, size_t index);

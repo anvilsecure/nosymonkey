@@ -1,9 +1,9 @@
 # depslib dependency file v1.0
-1684800418 source:c:\users\administrator\desktop\nosymonkey\examples\sneaky-lsass-dumper\main.cpp
+1684800314 source:c:\users\administrator\desktop\nosymonkey\examples\anti-kill\main.cpp
 	"debug.hpp"
 	"../../include/nosymonkey.hpp"
 
-1684502230 c:\users\administrator\desktop\nosymonkey\examples\sneaky-lsass-dumper\debug.hpp
+1684502230 c:\users\administrator\desktop\nosymonkey\examples\anti-kill\debug.hpp
 	<iostream>
 	<string>
 	<windows.h>

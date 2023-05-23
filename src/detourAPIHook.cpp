@@ -7,7 +7,6 @@
 using namespace std;
 
 map<pair<DWORD, string>,uintptr_t> shadowLoadedAdds;
-extern uintptr_t g_nosyFunction;
 
 __attribute__((naked)) void callOriginalDetour()
 {
@@ -29,25 +28,25 @@ __attribute__((naked)) void callOriginalDetour()
     asm("call rax");
     asm("mov rsp, rbp");
     asm("pop rbp");
+    asm("ret");
     asm("push rax"); //These are opcodes "PPPP", to find the end of the function easily. IDDQD
     asm("push rax");
     asm("push rax");
     asm("push rax");
 }
 
-void replaceInFunctionDetour(string &sFunc, DWORD dwCalcDiff, uintptr_t originalAPI)
+void replaceInFunctionDetour(string &sFunc, uintptr_t originalAPI)
 {
     string sReplacement((char*) callOriginalDetour, 0x400); //Who said C is not beautiful? Initialize an std::string with a char pointer static casted from a function pointer. IDDQD.
     sReplacement = sReplacement.substr(0, sReplacement.find("PPPP")); //Here we have the call to the original function.
     string sOriginalAPI((char*)(&originalAPI), sizeof(originalAPI)); //Another IDDQD moment.
     replacestr(sReplacement, "HHHHHHHH", sOriginalAPI); //Replace the call to the new shadowLoaded Dll resolved function address.
+    sFunc.append("\xCC\xCC\xCC\xCC"); //Alignment
     for(size_t i = 0; i < sFunc.size();i++)
     {
-        DWORD dwTempDiff = dwCalcDiff-i;
-        string sToReplace((char*)(&dwTempDiff), sizeof(dwTempDiff));
-        sToReplace.insert(0, 1, '\xE8'); //Search for all calls to the dummy function and replace them.
-        while(replacestr(sFunc, sToReplace, sReplacement));
+        replaceCallIfValid(sFunc, i);
     }
+    sFunc.append(sReplacement);
 }
 
 uintptr_t getShadowProcAddress(DWORD dwPid, string dllName, uintptr_t targetApi)
@@ -69,7 +68,6 @@ uintptr_t getShadowProcAddress(DWORD dwPid, string dllName, uintptr_t targetApi)
 bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string dllName)
 {
     string sFunc((char*)lpShellCodeFunc, 0x1000);
-    uintptr_t dwCalcDiff = (uintptr_t) g_nosyFunction + *((DWORD*)(((char*)g_nosyFunction)+5)) - (uintptr_t) lpShellCodeFunc;
     uintptr_t targetApi = (uintptr_t) GetProcAddress(LoadLibrary(dllName.c_str()), apiName.c_str()); //Get API address.
     if(targetApi)
     {
@@ -77,7 +75,7 @@ bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string d
         if(targetShadowAPI)
         {
             replaceIATCalls(sFunc, (uintptr_t)lpShellCodeFunc);
-            replaceInFunctionDetour(sFunc, dwCalcDiff, targetShadowAPI);
+            replaceInFunctionDetour(sFunc, targetShadowAPI);
             uintptr_t targetHook = writeToProcess(dwPid, sFunc, 0);
             if(targetHook)
             {

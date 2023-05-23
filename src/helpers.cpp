@@ -2,8 +2,8 @@
 #include <string>
 #include <windows.h>
 #include "debug.hpp"
+#define HEURISTIC_TOLERANCE 0x10000
 using namespace std;
-uintptr_t g_nosyFunction = 0;
 
 uintptr_t writeToProcess(DWORD dwPid, string memory, uintptr_t ptr)
 {
@@ -108,7 +108,18 @@ bool getSyscallNumber(string apiName, DWORD *sysCall)
     return true;
 }
 
-void _init_nosymonkey(uintptr_t nosyFunction)
+void replaceCallIfValid(string &sCode, size_t index)
 {
-    g_nosyFunction = nosyFunction;
+    if(sCode[index] == '\xE8' && index < sCode.size() - 5)
+    {
+        int32_t callDiff = 0;
+        memcpy(&callDiff, sCode.c_str()+index+1, sizeof(int32_t));
+        cout << "Calldiff = 0x" << (hex) << callDiff << endl;
+        if(abs(callDiff) < HEURISTIC_TOLERANCE)
+        {
+            int32_t newDiff = sCode.size() - index -5;
+            string sDiff((char*)&newDiff, sizeof(int32_t));
+            sCode.replace(index+1, 4, sDiff);
+        }
+    }
 }

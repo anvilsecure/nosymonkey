@@ -25,25 +25,25 @@ __attribute__((naked)) void directSysCall()
     asm("syscall");
     asm("mov rsp, rbp");
     asm("pop rbp");
+    asm("ret");
     asm("push rax"); //These are opcodes "PPPP", to find the end of the function easily. IDDQD
     asm("push rax");
     asm("push rax");
     asm("push rax");
 }
 
-void replaceInFunction(string &sFunc, DWORD dwSyscall, DWORD dwCalcDiff)
+void replaceInFunction(string &sFunc, DWORD dwSyscall)
 {
     string sReplacement((char*) directSysCall, 0x400); //Who said C is not beautiful? Initialize an std::string with a char pointer static casted from a function pointer. IDDQD.
     sReplacement = sReplacement.substr(0, sReplacement.find("PPPP")); //Here we have the direct syscall function.
     string sSysCall((char*)(&dwSyscall), sizeof(dwSyscall)); //Another IDDQD moment.
     replacestr(sReplacement, "HHHH", sSysCall); //Replace the syscall number with the correct one.
+    sFunc.append("\xCC\xCC\xCC\xCC"); //Alignment
     for(size_t i = 0; i < sFunc.size();i++)
     {
-        DWORD dwTempDiff = dwCalcDiff-i;
-        string sToReplace((char*)(&dwTempDiff), sizeof(dwTempDiff));
-        sToReplace.insert(0, 1, '\xE8'); //Search for all calls to the dummy function and replace them.
-        while(replacestr(sFunc, sToReplace, sReplacement));
+        replaceCallIfValid(sFunc, i);
     }
+    sFunc.append(sReplacement);
 }
 
 bool hookAPIDirectSyscall(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName)
@@ -52,9 +52,8 @@ bool hookAPIDirectSyscall(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName)
     DWORD dwSysCall = 0;
     if(getSyscallNumber(apiName, &dwSysCall))
     {
-        uintptr_t dwCalcDiff = (uintptr_t) g_nosyFunction + *((DWORD*)(((char*)g_nosyFunction)+5)) - (uintptr_t) lpShellCodeFunc;
         replaceIATCalls(sFunc, (uintptr_t)lpShellCodeFunc);
-        replaceInFunction(sFunc, dwSysCall, dwCalcDiff);
+        replaceInFunction(sFunc, dwSysCall);
         uintptr_t targetApi = (uintptr_t) GetProcAddress(LoadLibrary("ntdll.dll"), apiName.c_str()); //Get API address.
         uintptr_t targetHook = writeToProcess(dwPid, sFunc, 0);
         if(targetHook)
