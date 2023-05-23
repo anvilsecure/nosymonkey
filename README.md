@@ -153,3 +153,8 @@ Returns the return value of your function (the remote RAX).
 ## Feedback
 
 I'm open to receiving feedback! I'm always learning so please feel free to submit issues and pull requests. I'll try to get to them as much as I can.
+
+## Troubleshooting
+
+* I'm trying to hook api X from kernel32.dll and it crashes with STACK_OVERFLOW: Kernel32.dll is now just a wrapper for Kernelbase.dll. Use the latter.
+* Hooking Rtl* from ntdll.dll doesn't work with hookAPIDirectSyscall: Rtl are run-time libraries that are run on user space. There is no context switch and no system call. For this reason you cannot use direct system calls. You may only do this with functions that start with "Nt" or "Zw".
