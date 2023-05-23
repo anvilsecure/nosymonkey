@@ -147,7 +147,7 @@ Returns the return value of your function (the remote RAX).
 * This is probably not performance-optimized: This was coded without performance in mind, it works but it's not super performing.
 * I haven't wrote unit tests: Examples work a bit like regression tests, but there are no unit tests. I'm gonna try to include them in the future.
 * You need to link against -ladvapi32 and -lpsapi.
-* You need to call init_nosymonkey() before you do anything.
+* ~~You need to call init_nosymonkey() before you do anything.~~
 * detourAPIHook creates a copy of the DLL. In the future I might use MemoryModule to reflectively load a copy.
 
 ## Feedback
