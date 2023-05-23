@@ -149,6 +149,7 @@ Returns the return value of your function (the remote RAX).
 * You need to link against -ladvapi32 and -lpsapi.
 * ~~You need to call init_nosymonkey() before you do anything.~~
 * detourAPIHook creates a copy of the DLL. In the future I might use MemoryModule to reflectively load a copy.
+* You can't call other local functions (other than originalCall()) from a funtion that it's going to be copied to another process, since the address won't be valid. In the future I'll try to add heuristics to detect this local calls and include them.
 
 ## Feedback
 
