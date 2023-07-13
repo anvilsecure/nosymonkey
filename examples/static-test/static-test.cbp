@@ -2,23 +2,24 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="sneaky-lsass-dumper" />
+		<Option title="static-test" />
 		<Option pch_mode="2" />
 		<Option compiler="clang" />
 		<Build>
 			<Target title="Release">
-				<Option output="bin/Release/sneaky-lsass-dumper" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/static-test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="clang" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=c++20" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-lpsapi" />
 					<Add option="-ladvapi32" />
-					<Add library="../../build/bin/nosymonkey.lib" />
+					<Add option="-lpsapi" />
+					<Add library="C:/Users/Administrator/Desktop/nosymonkey/build/bin/nosymonkey.lib" />
 				</Linker>
 			</Target>
 		</Build>

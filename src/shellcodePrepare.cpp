@@ -1,11 +1,10 @@
-#include "debug.hpp"
 #include "helpers.hpp"
 #define STRINGS_START 0x800
 #include <vector>
 
-
-void replaceIATCalls(string &shellCode, uintptr_t memStart)
+void replaceIATCalls(string &shellCode, uintptr_t memStart, uint32_t entryOffset)
 {
+    memStart -=entryOffset;
     string leaRax("\x48\x8d\x05");
     string leaRbx("\x48\x8d\x1d");
     string leaRcx("\x48\x8d\x0d");
@@ -38,21 +37,15 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart)
         {
             if(shellCode.substr(i, it.size()).compare(it) == 0 && i + (it.size()+4) < shellCode.size())
             {
-                #ifdef VERBOSE
-                cout << "Found CALL or LEA QWORD PTR at 0x" << (hex) << (memStart+i) << endl;
-                #endif // VERBOSE
+                INFO(cout << "Found CALL or LEA QWORD PTR at 0x" << (hex) << (memStart+i) << endl);
                 DWORD dwOffset = 0;
                 memcpy(&dwOffset, shellCode.substr(i+it.size(), 4).c_str(), sizeof(DWORD)); //Get offset for IAT pointer.
                 dwOffset +=it.size()+4;
-                #ifdef VERBOSE
-                cout << "Offset is 0x" << (hex) << (dwOffset - (it.size()+4)) << endl;
-                #endif // VERBOSE
+                DEBUG(cout << "Offset is 0x" << (hex) << (dwOffset - (it.size()+4)) << endl);
                 if(isValidMemory(memStart + dwOffset + i))
                 {
                     char *pszData = (char*) (memStart + dwOffset + i);
-                    #ifdef VERBOSE
-                    cout << "Accessible memory. String = " << pszData << endl;
-                    #endif // VERBOSE
+                    DEBUG(cout << "Accessible memory. String = " << pszData << endl);
                     size_t dataLen = strlen(pszData)+1;
                     DWORD dwNewOffset = shellCode.size() - i - sizeof(DWORD) - it.size();
                     if(dataLen < sizeof(uintptr_t)) dataLen = sizeof(uintptr_t);

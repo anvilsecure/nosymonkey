@@ -61,8 +61,7 @@
 	"debug.hpp"
 	"helpers.hpp"
 
-1684856412 source:c:\users\administrator\desktop\nosymonkey\src\detourapihook.cpp
-	"debug.hpp"
+1689260911 source:c:\users\administrator\desktop\nosymonkey\src\detourapihook.cpp
 	"helpers.hpp"
 	"dllShadowLoad.hpp"
 	"shellcodePrepare.hpp"
@@ -74,47 +73,48 @@
 	<string>
 	<windows.h>
 
-1684856977 c:\users\administrator\desktop\nosymonkey\src\helpers.hpp
+1689261605 c:\users\administrator\desktop\nosymonkey\src\helpers.hpp
 	<iostream>
 	<string>
 	<windows.h>
+	<vector>
 
 1682880461 c:\users\administrator\desktop\nosymonkey\src\dllshadowload.hpp
 
-1684774698 c:\users\administrator\desktop\nosymonkey\src\shellcodeprepare.hpp
+1689257590 c:\users\administrator\desktop\nosymonkey\src\shellcodeprepare.hpp
 
-1684857236 source:c:\users\administrator\desktop\nosymonkey\src\directsyscalhook.cpp
-	"debug.hpp"
+1689261507 source:c:\users\administrator\desktop\nosymonkey\src\directsyscalhook.cpp
 	"helpers.hpp"
 	"shellcodePrepare.hpp"
 
-1684260807 source:c:\users\administrator\desktop\nosymonkey\src\dllshadowload.cpp
+1689260832 source:c:\users\administrator\desktop\nosymonkey\src\dllshadowload.cpp
 	"helpers.hpp"
-	"debug.hpp"
 	"remoteExecute.hpp"
 	"shellcodePrepare.hpp"
 
 1682890156 c:\users\administrator\desktop\nosymonkey\src\remoteexecute.hpp
 	<vector>
 
-1684859908 source:c:\users\administrator\desktop\nosymonkey\src\helpers.cpp
+1689261526 source:c:\users\administrator\desktop\nosymonkey\src\helpers.cpp
 	<string>
 	<windows.h>
-	"debug.hpp"
+	<utility>
+	<vector>
+	<psapi.h>
+	"helpers.hpp"
 
-1682552950 source:c:\users\administrator\desktop\nosymonkey\src\privileges.cpp
+1689261649 source:c:\users\administrator\desktop\nosymonkey\src\privileges.cpp
 	<windows.h>
 	<stdio.h>
-	"debug.hpp"
+	"helpers.hpp"
 
 1682895600 source:c:\users\administrator\desktop\nosymonkey\src\process.cpp
 	"debug.hpp"
 	<psapi.h>
 	<tlhelp32.h>
 
-1684774678 source:c:\users\administrator\desktop\nosymonkey\src\remoteexecute.cpp
+1689261543 source:c:\users\administrator\desktop\nosymonkey\src\remoteexecute.cpp
 	"helpers.hpp"
-	"debug.hpp"
 	<vector>
 	"shellcodePrepare.hpp"
 

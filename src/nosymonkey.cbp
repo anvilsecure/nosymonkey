@@ -26,7 +26,6 @@
 			</Target>
 		</Build>
 		<Unit filename="../include/nosymonkey.hpp" />
-		<Unit filename="debug.hpp" />
 		<Unit filename="detourAPIHook.cpp" />
 		<Unit filename="detourAPIHook.hpp" />
 		<Unit filename="directSyscalHook.cpp" />

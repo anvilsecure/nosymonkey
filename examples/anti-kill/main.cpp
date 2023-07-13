@@ -14,6 +14,13 @@ void usage(char *arg1)
 }
 DWORD dwTargetProcess = 0;
 
+/*
+This is another cool example of how in 30 lines you can implement a ring3 anti-kill hook.
+Notice that we are again referencing a global variable, so we may specify dynamically which process we'll be "protecting".
+
+
+*/
+
 uintptr_t OpenProcesHook(uintptr_t dwDesiredAccess, uintptr_t bInheritHandle, uintptr_t dwProcessId)
 {
     //We may reference global variables, which will be copied and the relative offset fixed.

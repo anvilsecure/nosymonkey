@@ -11,6 +11,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="clang" />
+				<Option parameters="Taskmgr.exe cmd.exe" />
 				<Linker>
 					<Add option="-s" />
 				</Linker>
@@ -20,11 +21,12 @@
 			<Add option="-O2" />
 			<Add option="-Weverything" />
 			<Add option="-fexceptions" />
+			<Add option="-DVERBOSE" />
 		</Compiler>
 		<Linker>
 			<Add option="-ladvapi32" />
 			<Add option="-lpsapi" />
-			<Add library="../../build/bin/nosymonkey_verbose.lib" />
+			<Add library="../../build/bin/nosymonkey.lib" />
 		</Linker>
 		<Unit filename="main.cpp" />
 		<Extensions>

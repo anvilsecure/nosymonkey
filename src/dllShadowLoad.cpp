@@ -1,5 +1,4 @@
 #include "helpers.hpp"
-#include "debug.hpp"
 #include "remoteExecute.hpp"
 #include "shellcodePrepare.hpp"
 
@@ -27,9 +26,7 @@ uintptr_t dllShadowLoad(DWORD dwPid, string sDll, bool bCopy=true)
     string shadowLoadTarget;
     if(copyToMe(sDll, shadowLoadTarget,bCopy))
     {
-        #ifdef VERBOSE
-        cout << "Shadow Load Target = " << shadowLoadTarget << endl;
-        #endif // VERBOSE
+        INFO(cout << "Shadow Load Target = " << shadowLoadTarget << endl);
         uintptr_t dllParam = allocateParam(dwPid, shadowLoadTarget);
         uintptr_t loadLib = (uintptr_t) GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
         uintptr_t remoteGLE = 0;

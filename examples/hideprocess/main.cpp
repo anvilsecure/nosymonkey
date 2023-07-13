@@ -79,6 +79,29 @@ void usage(char *arg1)
 }
 char pszProcessHidden[256];
 
+/*
+This is a good example of how to /avoid/ using local functions (i.e. those that are statically linked to your main module) and instead use equivalents
+which can be referenced by Nosymonkey on your target process.
+I wrote this before I implemented support for local functions, but the idea remains the same:
+
+pszProcessHidden is a global variable, which is copied into the target executable by Nosymonkey.
+
+We place the hook on the function NtQuerySystemInformation from ntdll.dll. This function is an "NT" function
+which means that it does a context switch (via a system call), thus we can use direct system calling to restore the flow of execution.
+
+This function is called by Taskmgr.exe to get the list of executables, we then traverse the list, compare the process names and hide
+the one that we want.
+
+Note that:
+- originalCall() is used as a placeholder to call the original version of NtQuerySystemInformation, this is a dummy function that will be replaced.
+- MultyByteToWideChar() is used to convert pszProcessHidden to UNICODE, as NtQuerySystemInformation returns wide-char strings.
+- LocalAlloc()/LocalFree() are used instead of the new operator or malloc(), which are both locally referenced.
+- CompareStringW() is used instead of wcscmp() for the same reason.
+
+Also, since we're not using local function calls, we can just call setCopyDepth(0), to reduce the final shellcode size and skip that part of the process.
+
+*/
+
 uintptr_t NtQuerySystemInformationHook(uintptr_t SystemInformationClass,uintptr_t SystemInformation,uintptr_t SystemInformationLength,uintptr_t ReturnLength)
 {
     uintptr_t ntOut = originalCall(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength); //Call the original NtQuerySystemInformation via direct system call.
@@ -118,6 +141,7 @@ uintptr_t NtQuerySystemInformationHook(uintptr_t SystemInformationClass,uintptr_
 int main(int argc, char **argv)
 {
     if(argc != 3) usage(argv[0]);
+    setCopyDepth(0);
     strcpy(pszProcessHidden, argv[2]);
     DWORD dwPid = getProcessId(argv[1]);
     if(dwPid)

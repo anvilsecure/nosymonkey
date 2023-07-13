@@ -1,11 +1,10 @@
 #include "helpers.hpp"
-#include "debug.hpp"
 #include <vector>
 #include "shellcodePrepare.hpp"
 #define DATA_SECTION 0x400
 #define SDATA_SECTION "0x400"
 #define HOOKED_FUNC "NtTerminateThread"
-
+extern size_t copyCodeSize;
 
 void __attribute__((naked)) remoteExec()
 {
@@ -112,19 +111,15 @@ bool remoteExecute(DWORD dwPid, uintptr_t ptr)
 
 uintptr_t execWithParams(DWORD dwPid, uintptr_t remoteFunc, uintptr_t* dwGLE, vector<uintptr_t> args)
 {
-    #ifdef VERBOSE
-    cout << "Executing address 0x" << (hex) << remoteFunc << " in PID 0x" << dwPid << " (" << (dec) << dwPid << ")" << endl;
-    for(auto & elem : args) cout << "Param 0x" << (hex) << elem << endl;
-    #endif // VERBOSE
+    GENERAL(cout << "Executing address 0x" << (hex) << remoteFunc << " in PID 0x" << dwPid << " (" << (dec) << dwPid << ")" << endl);
+    GENERAL(for(auto & elem : args) cout << "Param 0x" << (hex) << elem << endl);
     DWORD dwSyscall = 0;
     if(getSyscallNumber(HOOKED_FUNC, &dwSyscall))
     {
         string sParams;
         for(auto & element : args) sParams.append((char*)&element, sizeof(uintptr_t));
         uintptr_t injectedFunction = prepareFunction(dwPid, dwSyscall, remoteFunc, sParams);
-        #ifdef VERBOSE
-        cout << "Prepared function in 0x" << (hex) << injectedFunction << endl;
-        #endif // VERBOSE
+        INFO(cout << "Prepared function in 0x" << (hex) << injectedFunction << endl);
         if(remoteExecute(dwPid, injectedFunction))
         {
             string sMem;
@@ -135,10 +130,8 @@ uintptr_t execWithParams(DWORD dwPid, uintptr_t remoteFunc, uintptr_t* dwGLE, ve
                 if(dwGLE) memcpy(dwGLE, sMem.c_str()+sizeof(uintptr_t)*2, sizeof(uintptr_t));
             }
             debugcry("readFromProcess");
-            #ifdef VERBOSE
-            cout << "return = 0x" << (hex) << shadowLoadDllAdd << endl;
-            if(dwGLE) cout << "Remote GetLastError = " << (dec) << *dwGLE << endl;
-            #endif
+            INFO(cout << "return = 0x" << (hex) << shadowLoadDllAdd << endl);
+            INFO(if(dwGLE) cout << "Remote GetLastError = " << (dec) << *dwGLE << endl);
             remoteFree(dwPid, injectedFunction);
             return shadowLoadDllAdd;
         }
@@ -150,8 +143,11 @@ uintptr_t execWithParams(DWORD dwPid, uintptr_t remoteFunc, uintptr_t* dwGLE, ve
 
 uintptr_t copyAndExecWithParams(DWORD dwPid, LPCVOID localFunc, uintptr_t* dwGLE, vector<uintptr_t> args)
 {
-    string sFunc((char*)localFunc, 0x400);
-    replaceIATCalls(sFunc, (uintptr_t)localFunc);
+    GENERAL(cout << "Log level = " << logLevel << endl);
+    string sFunc((char*)localFunc, copyCodeSize);
+    uint32_t entryOffset = handleLocalCalls(sFunc, (uintptr_t)localFunc);
+    placeJumpToEntry(sFunc, &entryOffset);
+    replaceIATCalls(sFunc, (uintptr_t)localFunc, entryOffset);
     uintptr_t remoteFunc = writeToProcess(dwPid, sFunc, 0);
     if(remoteFunc)
     {

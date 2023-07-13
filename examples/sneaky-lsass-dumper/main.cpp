@@ -13,6 +13,16 @@ void usage(char *arg1)
     ExitProcess(1);
 }
 
+/*
+This is a cool example of what we can do with Nosymonkey. lsass.exe's memory has credentials, tokens and other yummy stuff for hackers like me.
+Main problem is that EDRs detect whenever someone tries to dump LSASS and stops it (go ahead and try it, open task manager, right click on lsass.exe and dump its memory)
+
+This dumper uses Nosymonkey to load dbgcore.dll and dbghelp.dll into another process, and then calls MiniDumpWriteDump on that process.
+This fools EDRs (at least Defender) into allowing the dump.
+
+Remember to run this as an Administrator, otherwise it won't work.
+*/
+
 bool loadDlls()
 {
     HMODULE dll1 = LoadLibrary("dbgcore.dll");

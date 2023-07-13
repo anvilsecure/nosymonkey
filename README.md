@@ -34,7 +34,6 @@ I use CodeBlocks as my IDE (I know, old habits die hard) that's what those **cbp
 ## Usage
 Just link with nosymonkey.lib or nosymonkey_verbose.lib (if you want output to stdout) and include nosymonkey.hpp in your project.
 **Make sure to link with advapi32 and psapi (-ladvapi32 -lpsapi).** I will try to remove this requisite in the future.
-**You need to call init_nosymonkey() before you do anything.** This is to identify the call to originalCall(). I'll try to remove this requisite in the future as well.
 
 I use C++ strings to handle memory because they are easy to use and you don't have to worry about freeing them.
 The exposed APIs so far are:
@@ -67,27 +66,11 @@ Takes a process id, a pointer to a string that will receive the data read, the p
 
 Returns true on success, false on error.
 
-**bool replacestr(string& str, const string& from, const string& to)**
-
-Takes a pointer to a string to modify, a string to search and replace and a string to replace to.
-
-Returns true on success, false on error.
-
-**bool getSyscallNumber(string apiName, DWORD \*sysCall)**
-
-Takes an API name (from ntdll.dll) and a pointer to a DWORD. Returns the number of the syscall for that specific API (For direct system calling).
-
-Returns true on success, false on error.
-
 **bool remoteFree(DWORD dwPid, uintptr_t ptr)**
 
 Takes a process id and a pointer to allocated memory and frees it.
 
 Returns true on success, false on error.
-
-**void manuallyTrigger(DWORD dwPid)**
-
-Takes a process id and creates an empty thread on the target process. It's used to trigger execution of NtTerminateThread after it had been hooked.
 
 **DWORD getProcessId(string processName)**
 
@@ -149,7 +132,7 @@ Returns the return value of your function (the remote RAX).
 * You need to link against -ladvapi32 and -lpsapi.
 * ~~You need to call init_nosymonkey() before you do anything.~~
 * detourAPIHook creates a copy of the DLL. In the future I might use MemoryModule to reflectively load a copy.
-* You can't call other local functions (other than originalCall()) from a funtion that it's going to be copied to another process, since the address won't be valid. In the future I'll try to add heuristics to detect this local calls and include them.
+* ~~You can't call other local functions (other than originalCall()) from a funtion that it's going to be copied to another process, since the address won't be valid. In the future I'll try to add heuristics to detect this local calls and include them.~~
 
 ## Feedback
 

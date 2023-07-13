@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
-#include "debug.hpp"
+#include "helpers.hpp"
 
 BOOL SetPrivilege(HANDLE hToken,LPCTSTR lpszPrivilege,BOOL bEnablePrivilege)
 {
@@ -14,12 +14,11 @@ BOOL SetPrivilege(HANDLE hToken,LPCTSTR lpszPrivilege,BOOL bEnablePrivilege)
         else tp.Privileges[0].Attributes = 0;
         if (AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), (PTOKEN_PRIVILEGES) NULL, (PDWORD) NULL) )
         {
-            if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+            if (GetLastError() != ERROR_NOT_ALL_ASSIGNED)
             {
-                cout << "The token does not have the priv" << endl;
-                return false;
+                return true;
             }
-            return true;
+            debugcry("AdjustTokenPrivileges");
         }
         debugcry("AdjustTokenPrivileges");
     }

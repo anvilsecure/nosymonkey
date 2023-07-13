@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1689208034 source:c:\users\administrator\desktop\nosymonkey\examples\static-test\main.cpp
+	"debug.hpp"
+	"../../include/nosymonkey.hpp"
+	<iostream>
+
+1684502230 c:\users\administrator\desktop\nosymonkey\examples\static-test\debug.hpp
+	<iostream>
+	<string>
+	<windows.h>
+
+1689257157 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
+	<iostream>
+	<string>
+	<vector>
+	<windows.h>
+

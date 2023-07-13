@@ -1,8 +1,17 @@
 #include <string>
 #include <windows.h>
-#include "debug.hpp"
-#define HEURISTIC_TOLERANCE 0x10000
+#include <utility>
+#include <vector>
+#include <psapi.h>
+#include "helpers.hpp"
 using namespace std;
+uint32_t copy_depth = 1;
+size_t copyCodeSize = 0x1000;
+//DISABLED = 0
+//GENERAL = 1 (DEFAULT)
+//INFO = 2
+//DEBUG = 3
+int logLevel = 1;
 
 uintptr_t writeToProcess(DWORD dwPid, string memory, uintptr_t ptr)
 {
@@ -107,58 +116,110 @@ bool getSyscallNumber(string apiName, DWORD *sysCall)
     return true;
 }
 
+bool IsAddressInTextSection(uintptr_t address)
+{
+    HMODULE hModule = GetModuleHandle(NULL);
+    MEMORY_BASIC_INFORMATION mInfo;
+    ZeroMemory(&mInfo, sizeof(mInfo));
+    if (hModule == NULL)
+        return false;
+
+    MODULEINFO moduleInfo;
+    if (GetModuleInformation(GetCurrentProcess(), hModule, &moduleInfo, sizeof(moduleInfo)) == FALSE)
+        return false;
+    if(!VirtualQuery(moduleInfo.EntryPoint, &mInfo, sizeof(mInfo))) return false;
+    if(mInfo.State != MEM_COMMIT) return false;
+    uintptr_t startAddress = (uintptr_t) mInfo.BaseAddress;
+    uintptr_t endAddress = startAddress + mInfo.RegionSize;
+    return (address >= startAddress) && (address < endAddress);
+}
+
 bool isValidMemory(uintptr_t ptr)
 {
     MEMORY_BASIC_INFORMATION mInfo;
     memset(&mInfo, 0, sizeof(mInfo));
-    cout << "Target address is 0x" << (hex) << ptr << endl;
-    #ifdef VERBOSE
-    cout << "Target address is 0x" << (hex) << ptr << endl;
-    #endif // VERBOSE
+    INFO(cout << "Target address is 0x" << (hex) << ptr << endl);
     VirtualQuery((LPCVOID)(ptr), &mInfo, sizeof(mInfo)); //Is target memory accessible?
-    #ifdef VERBOSE
-    if(mInfo.State == MEM_COMMIT) cout << "Valid memory. State = 0x" << mInfo.State << endl;
-    else cout << "Invalid memory. State = 0x" << mInfo.State << endl;
-    #endif // VERBOSE
+    DEBUG(if(mInfo.State == MEM_COMMIT) cout << "Valid memory. State = 0x" << mInfo.State << endl);
+    DEBUG(if(mInfo.State != MEM_COMMIT) cout << "Invalid memory. State = 0x" << mInfo.State << endl);
     if(mInfo.State == MEM_COMMIT) return true;
     else return false;
 }
 
-bool isOriginalFunction(uintptr_t targetMemory)
+bool isOriginalCall(uintptr_t memoryAdd)
 {
-    //Not Implemented.
-    /*string sOrig("\xCC\xCC\xCC\xCC\xCC"); //Probably not the best idea, but the best I can think of right now.
-    string sTarg((char*)targetMemory, 0x8);
-    if(sOrig.compare(sTarg) == 0) return true;
-    else return false;*/
-    return true;
+    //Horrible heuristics to see if it's originalCall
+    string sOrigCall((char*)memoryAdd, 0x100);
+    uintptr_t uPattern= 0xcacabebe14143322;
+    string sPattern((char*)&uPattern, sizeof(uPattern));
+    if(sOrigCall.find(sPattern) != string::npos) return true;
+    return false;
 }
 
-void replaceCallIfValid(string &sCode, uintptr_t baseMemory, string originalFunc)
+void placeJumpToEntry(string &sCode, uint32_t *entryOffset)
 {
-    size_t originalSize = sCode.size();
-    for(size_t index = 0; index < originalSize; index++)
+    string sJmp((char*)entryOffset, sizeof(uint32_t));
+    sJmp.insert(0, "\xE9");
+    sCode.insert(0, sJmp);
+    *entryOffset += sJmp.size();
+}
+
+void handleOriginalCall(string &sCode, string sReplacer)
+{
+
+}
+
+void setCopyDepth(uint32_t newCopyDepth)
+{
+    copy_depth = newCopyDepth;
+}
+
+void setCopyCodeSize(size_t newCopyCodeSize)
+{
+    copyCodeSize = newCopyCodeSize;
+}
+
+void setLogLevel(int newLogLevel)
+{
+    logLevel = newLogLevel;
+}
+
+uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory) //Extends the code to include all local relative calls. Returns the offset of the start of the function.
+{
+    INFO(cout << "Handling local calls baseMemory = 0x" <<(hex) << baseMemory << " depth = " << (dec) <<  copy_depth << endl);
+    DEBUG(cout << "Initial size 0x" << (hex) << sCode.size() << endl);
+    uint32_t entryOffset = 0;
+    uintptr_t memStart = baseMemory;
+    uintptr_t memEnd = baseMemory + sCode.size();
+    for(uint32_t j = 0; j < copy_depth; j++)
     {
-        if(sCode[index] == '\xE8' && index < originalSize - 5)
+        for(size_t index = 0; index < sCode.size(); index++)
         {
-            int32_t callDiff = 0;
-            memcpy(&callDiff, sCode.c_str()+index+1, sizeof(int32_t));
-            uintptr_t targetMemory = baseMemory + index + callDiff -5;
-            if(isValidMemory(targetMemory))
+            if(sCode[index] == '\xE8' && index < sCode.size()) //Possible local call.
             {
-                if(isOriginalFunction(targetMemory))
+                int32_t callDiff = 0;
+                memcpy(&callDiff, sCode.c_str()+index+1, sizeof(int32_t));
+                uintptr_t targetMemory = baseMemory + index + callDiff + 5; //We get the absolute target memory address.
+                if(IsAddressInTextSection(targetMemory)) //Is the target memory valid and in the .text section of the current module?
                 {
-                    sCode.append("\xCC\xCC\xCC\xCC"); //Alignment
-                    int32_t newDiff = sCode.size() - index -5;
-                    string sDiff((char*)&newDiff, sizeof(int32_t));
-                    sCode.replace(index+1, 4, sDiff);
-                    sCode.append(originalFunc);
-                }
-                else
-                {
-                    //Not implemented.
+                    DEBUG(cout << "Found a local call in 0x" << (hex) << baseMemory + index << " to 0x" << (hex) << targetMemory << endl);
+                    if(!isOriginalCall(targetMemory))
+                    {
+                        //We expand the copied memory area.
+                        if(targetMemory > memEnd) memEnd = targetMemory + copyCodeSize;
+                        if(targetMemory < memStart)
+                        {
+                            entryOffset += memStart - targetMemory;
+                            memStart = targetMemory;
+                        }
+                    }
+                    index+=5;
                 }
             }
         }
+        sCode.assign((char*)memStart, memEnd-memStart);
+        DEBUG(cout << "Final size = 0x" <<(hex) << sCode.size() <<  endl);
+        DEBUG(cout << "New entry offset = 0x" << (hex) << entryOffset << endl);
     }
+    return entryOffset;
 }
