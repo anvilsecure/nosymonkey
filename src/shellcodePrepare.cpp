@@ -4,6 +4,7 @@
 
 void replaceIATCalls(string &shellCode, uintptr_t memStart, uint32_t entryOffset)
 {
+    INFO(cout << "Replacing cross-section references. memStart = 0x" << (hex) << memStart << " entryOffset = 0x" << entryOffset << endl);
     memStart -=entryOffset;
     string leaRax("\x48\x8d\x05");
     string leaRbx("\x48\x8d\x1d");
@@ -37,7 +38,7 @@ void replaceIATCalls(string &shellCode, uintptr_t memStart, uint32_t entryOffset
         {
             if(shellCode.substr(i, it.size()).compare(it) == 0 && i + (it.size()+4) < shellCode.size())
             {
-                INFO(cout << "Found CALL or LEA QWORD PTR at 0x" << (hex) << (memStart+i) << endl);
+                DEBUG(cout << "Found CALL or LEA QWORD PTR at 0x" << (hex) << (memStart+i) << endl);
                 DWORD dwOffset = 0;
                 memcpy(&dwOffset, shellCode.substr(i+it.size(), 4).c_str(), sizeof(DWORD)); //Get offset for IAT pointer.
                 dwOffset +=it.size()+4;

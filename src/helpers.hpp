@@ -17,10 +17,9 @@ bool replacestr(string& str, const string& from, const string& to);
 bool getSyscallNumber(string apiName, DWORD *sysCall);
 bool remoteFree(DWORD dwPid, uintptr_t ptr);
 void manuallyTrigger(DWORD dwPid);
-uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory);
+uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory, string sReplacecode = "");
 bool isValidMemory(uintptr_t ptr);
 void placeJumpToEntry(string &sCode, uint32_t *entryOffset);
-void handleOriginalCall(string &sCode, string sReplacer);
 extern int logLevel;
 #define GENERAL(s) if(logLevel >= 1) s
 #define INFO(s) if(logLevel >=2) s

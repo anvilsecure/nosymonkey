@@ -151,8 +151,6 @@ int main(int argc, char **argv)
         {
             return 0;
         }
-        debugcry("hookAPIDirectSyscall");
     }
-    debugcry("getProcessId");
     return 1;
 }

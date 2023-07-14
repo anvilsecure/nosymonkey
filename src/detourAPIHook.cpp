@@ -71,10 +71,9 @@ bool detourAPIHook(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName, string d
         if(targetShadowAPI)
         {
             string sDetour = createDetour(targetShadowAPI);
-            uint32_t entryOffset = handleLocalCalls(sFunc, (uintptr_t)lpShellCodeFunc);
+            uint32_t entryOffset = handleLocalCalls(sFunc, (uintptr_t)lpShellCodeFunc, sDetour);
             placeJumpToEntry(sFunc, &entryOffset);
             replaceIATCalls(sFunc, (uintptr_t)lpShellCodeFunc, entryOffset);
-            handleOriginalCall(sFunc, sDetour);
             uintptr_t targetHook = writeToProcess(dwPid, sFunc, 0);
             if(targetHook)
             {

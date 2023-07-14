@@ -48,10 +48,9 @@ bool hookAPIDirectSyscall(DWORD dwPid, LPVOID lpShellCodeFunc, string apiName)
     if(getSyscallNumber(apiName, &dwSysCall))
     {
         string sDirectSysCall = createDirectSysCall(dwSysCall);
-        uint32_t entryOffset = handleLocalCalls(sFunc, (uintptr_t)lpShellCodeFunc);
+        uint32_t entryOffset = handleLocalCalls(sFunc, (uintptr_t)lpShellCodeFunc, sDirectSysCall);
         placeJumpToEntry(sFunc, &entryOffset);
         replaceIATCalls(sFunc, ((uintptr_t)lpShellCodeFunc), entryOffset);
-        handleOriginalCall(sFunc, sDirectSysCall);
         uintptr_t targetApi = (uintptr_t) GetProcAddress(LoadLibrary("ntdll.dll"), apiName.c_str()); //Get API address.
         uintptr_t targetHook = writeToProcess(dwPid, sFunc, 0);
         if(targetHook)

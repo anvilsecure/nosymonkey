@@ -11,6 +11,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="clang" />
+				<Option parameters="cmd.exe cmd.exe test.dmp" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>

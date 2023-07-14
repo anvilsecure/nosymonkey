@@ -6,7 +6,7 @@
 #include "helpers.hpp"
 using namespace std;
 uint32_t copy_depth = 1;
-size_t copyCodeSize = 0x1000;
+size_t copyCodeSize = 0x400;
 //DISABLED = 0
 //GENERAL = 1 (DEFAULT)
 //INFO = 2
@@ -129,7 +129,7 @@ bool IsAddressInTextSection(uintptr_t address)
         return false;
     if(!VirtualQuery(moduleInfo.EntryPoint, &mInfo, sizeof(mInfo))) return false;
     if(mInfo.State != MEM_COMMIT) return false;
-    uintptr_t startAddress = (uintptr_t) mInfo.BaseAddress;
+    uintptr_t startAddress = (uintptr_t) mInfo.AllocationBase;
     uintptr_t endAddress = startAddress + mInfo.RegionSize;
     return (address >= startAddress) && (address < endAddress);
 }
@@ -138,7 +138,7 @@ bool isValidMemory(uintptr_t ptr)
 {
     MEMORY_BASIC_INFORMATION mInfo;
     memset(&mInfo, 0, sizeof(mInfo));
-    INFO(cout << "Target address is 0x" << (hex) << ptr << endl);
+    DEBUG(cout << "Target address is 0x" << (hex) << ptr << endl);
     VirtualQuery((LPCVOID)(ptr), &mInfo, sizeof(mInfo)); //Is target memory accessible?
     DEBUG(if(mInfo.State == MEM_COMMIT) cout << "Valid memory. State = 0x" << mInfo.State << endl);
     DEBUG(if(mInfo.State != MEM_COMMIT) cout << "Invalid memory. State = 0x" << mInfo.State << endl);
@@ -164,11 +164,6 @@ void placeJumpToEntry(string &sCode, uint32_t *entryOffset)
     *entryOffset += sJmp.size();
 }
 
-void handleOriginalCall(string &sCode, string sReplacer)
-{
-
-}
-
 void setCopyDepth(uint32_t newCopyDepth)
 {
     copy_depth = newCopyDepth;
@@ -184,14 +179,17 @@ void setLogLevel(int newLogLevel)
     logLevel = newLogLevel;
 }
 
-uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory) //Extends the code to include all local relative calls. Returns the offset of the start of the function.
+uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory, string sReplacecode) //Extends the code to include all local relative calls. Returns the offset of the start of the function.
 {
     INFO(cout << "Handling local calls baseMemory = 0x" <<(hex) << baseMemory << " depth = " << (dec) <<  copy_depth << endl);
-    DEBUG(cout << "Initial size 0x" << (hex) << sCode.size() << endl);
+    INFO(cout << "Initial size 0x" << (hex) << sCode.size() << endl);
     uint32_t entryOffset = 0;
     uintptr_t memStart = baseMemory;
     uintptr_t memEnd = baseMemory + sCode.size();
-    for(uint32_t j = 0; j < copy_depth; j++)
+    vector<uint32_t> originalCalls;
+    uint32_t finalDepth = copy_depth;
+    if(!sReplacecode.empty() && !finalDepth) finalDepth++; //Only force the loop if there are originalCalls.
+    for(uint32_t j = 0; j < finalDepth; j++) //We need to run this loop at least once to handle original calls.
     {
         for(size_t index = 0; index < sCode.size(); index++)
         {
@@ -199,27 +197,51 @@ uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory) //Extends the cod
             {
                 int32_t callDiff = 0;
                 memcpy(&callDiff, sCode.c_str()+index+1, sizeof(int32_t));
-                uintptr_t targetMemory = baseMemory + index + callDiff + 5; //We get the absolute target memory address.
+                uintptr_t targetMemory = memStart + index + callDiff + 5; //We get the absolute target memory address.
                 if(IsAddressInTextSection(targetMemory)) //Is the target memory valid and in the .text section of the current module?
                 {
-                    DEBUG(cout << "Found a local call in 0x" << (hex) << baseMemory + index << " to 0x" << (hex) << targetMemory << endl);
+                    DEBUG(cout << "Found a local call in 0x" << (hex) << memStart + index << " to 0x" << (hex) << targetMemory << endl);
                     if(!isOriginalCall(targetMemory))
                     {
-                        //We expand the copied memory area.
-                        if(targetMemory > memEnd) memEnd = targetMemory + copyCodeSize;
-                        if(targetMemory < memStart)
+                        if(copy_depth) //Only expand the memory area if it's requested.
                         {
-                            entryOffset += memStart - targetMemory;
-                            memStart = targetMemory;
+                            //We expand the copied memory area.
+                            if(targetMemory > memEnd) memEnd = targetMemory + copyCodeSize;
+                            if(targetMemory < memStart)
+                            {
+                                //If we need to reference previous memory, we need to adjust offsets and restart the loop.
+                                DEBUG(cout << "Found reference to previous memory, restarting loop." << endl);
+                                entryOffset += memStart - targetMemory;
+                                memStart = targetMemory;
+                                originalCalls.clear();
+                                j--;
+                                break;
+                            }
                         }
+                    }
+                    else if(j == finalDepth-1) //Only do this for the last loop.
+                    {
+                        DEBUG(cout << "Found originalCall() in 0x" << (hex) << memStart + index << endl);
+                        originalCalls.push_back(index+1); //We save the index
                     }
                     index+=5;
                 }
+                else DEBUG(cout << "Address not in .text section: 0x" << (hex) << targetMemory << endl;)
             }
         }
         sCode.assign((char*)memStart, memEnd-memStart);
-        DEBUG(cout << "Final size = 0x" <<(hex) << sCode.size() <<  endl);
-        DEBUG(cout << "New entry offset = 0x" << (hex) << entryOffset << endl);
+        INFO(cout << "Final size = 0x" <<(hex) << sCode.size() <<  endl);
+        INFO(cout << "New entry offset = 0x" << (hex) << entryOffset << endl);
     }
+    string sAlign("\xCC\xCC\xCC\xCC");
+    sCode.append(sAlign);
+    for(size_t i = 0; i < originalCalls.size(); i++)
+    {
+        DWORD newOffset = sCode.size() - originalCalls[i] - sizeof(DWORD);
+        INFO(cout << "originalCall() now points to offset 0x" << (hex) << originalCalls[i] + newOffset - sizeof(DWORD) << endl);
+        string sNewOffset((char*)&newOffset, sizeof(DWORD));
+        sCode.replace(originalCalls[i], sNewOffset.size(), sNewOffset);
+    }
+    sCode.append(sReplacecode);
     return entryOffset;
 }

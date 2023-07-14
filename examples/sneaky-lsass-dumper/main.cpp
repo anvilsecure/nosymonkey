@@ -34,6 +34,7 @@ bool loadDlls()
 int main(int argc, char **argv)
 {
     if(argc != 4) usage(argv[0]);
+    setCopyDepth(0); //No local calls, no need for depth.
     HANDLE hFile = CreateFile(argv[3], GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     uintptr_t miniDumpWriteDump = (uintptr_t) GetProcAddress(LoadLibrary("dbghelp.dll"), "MiniDumpWriteDump");
     if(hFile != INVALID_HANDLE_VALUE)

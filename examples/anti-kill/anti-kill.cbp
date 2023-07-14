@@ -26,7 +26,7 @@
 		<Linker>
 			<Add option="-ladvapi32" />
 			<Add option="-lpsapi" />
-			<Add library="../../build/bin/nosymonkey_verbose.lib" />
+			<Add library="../../build/bin/nosymonkey.lib" />
 		</Linker>
 		<Unit filename="main.cpp" />
 		<Extensions />

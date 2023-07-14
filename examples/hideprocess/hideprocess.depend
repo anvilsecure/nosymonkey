@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1684861222 source:c:\users\administrator\desktop\nosymonkey\examples\hideprocess\main.cpp
+1689342378 source:c:\users\administrator\desktop\nosymonkey\examples\hideprocess\main.cpp
 	"debug.hpp"
 	"../../include/nosymonkey.hpp"
 	<Winternl.h>
@@ -9,7 +9,7 @@
 	<string>
 	<windows.h>
 
-1689186832 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
+1689342269 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
 	<iostream>
 	<string>
 	<vector>

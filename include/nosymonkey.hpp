@@ -2,17 +2,12 @@
 #include <string>
 #include <vector>
 #include <windows.h>
-#ifdef VERBOSE
-#define debugcry(s) else cout << "Error in " << s << " GLE: " << (dec) << GetLastError() << endl;
-#else
-#define debugcry(s)
-#endif // VERBOSE
 using namespace std;
 #ifndef __ORIGINAL_CALL__
 #define __ORIGINAL_CALL__
 //This function will never be called, but I need to prevent a call to it from being optimized.
 #pragma clang optimize off //Sorry, optimization will break the calling convention.
-template<typename... Args> uintptr_t __attribute__((noinline)) originalCall(Args... args) //Dummy function to replace in code.
+template<typename... Args> uintptr_t __attribute__((noinline)) __attribute__((optnone)) originalCall(Args... args) //Dummy function to replace in code.
 {
     uintptr_t result = (uintptr_t) VirtualAlloc(0, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     result +=0xcacabebe14143322;

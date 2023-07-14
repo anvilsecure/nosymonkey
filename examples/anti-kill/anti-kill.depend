@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1684861369 source:c:\users\administrator\desktop\nosymonkey\examples\anti-kill\main.cpp
+1689342469 source:c:\users\administrator\desktop\nosymonkey\examples\anti-kill\main.cpp
 	"debug.hpp"
 	"../../include/nosymonkey.hpp"
 
@@ -8,7 +8,7 @@
 	<string>
 	<windows.h>
 
-1684863949 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
+1689342269 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
 	<iostream>
 	<string>
 	<vector>

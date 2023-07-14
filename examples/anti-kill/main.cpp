@@ -18,7 +18,7 @@ DWORD dwTargetProcess = 0;
 This is another cool example of how in 30 lines you can implement a ring3 anti-kill hook.
 Notice that we are again referencing a global variable, so we may specify dynamically which process we'll be "protecting".
 
-
+Remember you can always change log verbosity with setLogLevel(). The default is 1.
 */
 
 uintptr_t OpenProcesHook(uintptr_t dwDesiredAccess, uintptr_t bInheritHandle, uintptr_t dwProcessId)
@@ -36,8 +36,11 @@ uintptr_t OpenProcesHook(uintptr_t dwDesiredAccess, uintptr_t bInheritHandle, ui
 int main(int argc, char **argv)
 {
     if(argc != 3) usage(argv[0]);
-    dwTargetProcess = stoul(argv[2]);
+    setLogLevel(3);
+    setCopyDepth(0); //No local calls.
+    dwTargetProcess = getProcessId(argv[2]);
     DWORD dwPid = getProcessId(argv[1]);
+    cout << dwPid << endl;
     if(dwPid)
     {
         //Kernelbase.dll is the correct dll for OpenProcess.
@@ -46,8 +49,6 @@ int main(int argc, char **argv)
         {
             return 0;
         }
-        debugcry("detourAPIHook");
     }
-    debugcry("getProcessId");
     return 1;
 }

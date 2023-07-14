@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1689265740 source:c:\users\administrator\desktop\nosymonkey\examples\sneaky-lsass-dumper\main.cpp
+1689281236 source:c:\users\administrator\desktop\nosymonkey\examples\sneaky-lsass-dumper\main.cpp
 	"debug.hpp"
 	"../../include/nosymonkey.hpp"
 
