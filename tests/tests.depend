@@ -1064,9 +1064,10 @@
 	<catch2/internal/catch_xmlwriter.hpp>
 	<catch2/catch_timer.hpp>
 
-1689348198 source:c:\users\administrator\desktop\nosymonkey\tests\helpers_tests.cpp
+1689365210 source:c:\users\administrator\desktop\nosymonkey\tests\helpers_tests.cpp
 	"catch_amalgamated.hpp"
 	"../src/helpers.hpp"
+	"../include/nosymonkey.hpp"
 
 1689347611 c:\users\administrator\source\repos\vcpkg\installed\x64-windows\include\catch.hpp
 	<catch2/catch_all.hpp>
@@ -2462,4 +2463,22 @@
 	<vector>
 	<type_traits>
 	<cstring>
+
+1689342269 c:\users\administrator\desktop\nosymonkey\include\nosymonkey.hpp
+	<iostream>
+	<string>
+	<vector>
+	<windows.h>
+
+1689373914 source:c:\users\administrator\desktop\nosymonkey\tests\process_tests.cpp
+	"catch_amalgamated.hpp"
+	<windows.h>
+	"../src/process.hpp"
+
+1689373885 c:\users\administrator\desktop\nosymonkey\src\process.hpp
+
+1689262930 source:c:\users\administrator\desktop\nosymonkey\src\process.cpp
+	"helpers.hpp"
+	<psapi.h>
+	<tlhelp32.h>
 
