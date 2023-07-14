@@ -11,9 +11,6 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="clang" />
-				<Compiler>
-					<Add option="-O2" />
-				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
@@ -21,6 +18,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Weverything" />
+			<Add option="-std=c++20" />
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Linker>

@@ -21,6 +21,8 @@ uint32_t handleLocalCalls(string &sCode, uintptr_t baseMemory, string sReplaceco
 bool isValidMemory(uintptr_t ptr);
 void placeJumpToEntry(string &sCode, uint32_t *entryOffset);
 extern int logLevel;
+bool isOriginalCall(uintptr_t memoryAdd);
+bool IsAddressInTextSection(uintptr_t address);
 #define GENERAL(s) if(logLevel >= 1) s
 #define INFO(s) if(logLevel >=2) s
 #define DEBUG(s) if(logLevel >=3) s
