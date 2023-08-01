@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="nosymonkey.cbp" />
+		<Project filename="../tests/tests.cbp" />
+		<Project filename="../examples/anti-kill/anti-kill.cbp" />
+		<Project filename="../examples/hideprocess/hideprocess.cbp" />
+		<Project filename="../examples/sneaky-lsass-dumper/sneaky-lsass-dumper.cbp" />
+		<Project filename="../examples/static-test/static-test.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>
