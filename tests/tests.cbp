@@ -25,8 +25,14 @@
 			<Add option="-Weverything" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="../src/detourAPIHook.hpp" />
+		<Unit filename="../src/directSyscalHook.hpp" />
+		<Unit filename="../src/dllShadowLoad.hpp" />
 		<Unit filename="../src/helpers.cpp" />
 		<Unit filename="../src/helpers.hpp" />
+		<Unit filename="../src/process.hpp" />
+		<Unit filename="../src/remoteExecute.hpp" />
+		<Unit filename="../src/shellcodePrepare.hpp" />
 		<Unit filename="catch_amalgamated.cpp" />
 		<Unit filename="helpers_tests.cpp" />
 		<Unit filename="main.cpp" />

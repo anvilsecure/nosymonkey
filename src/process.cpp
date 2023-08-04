@@ -32,7 +32,7 @@ DWORD getProcessId(string processName)
 
 uintptr_t dupHandle(DWORD dwPid, HANDLE hHandle)
 {
-    uintptr_t out = 0;
+    uintptr_t out = INVALID_HANDLE_VALUE;
     HANDLE hProcess = OpenProcess(PROCESS_DUP_HANDLE, false, dwPid);
     if(hProcess)
     {
