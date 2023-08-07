@@ -353,6 +353,65 @@ Possible causes of error can be:
 
 Increase error verbosity calling to **setLogLevel()** for more information.
 
+### setLogLevel:
+
+```C++
+void setLogLevel(int newLogLevel);
+
+/*
+Sets the log verbosity level.
+Does not return a value
+/*
+
+```
+
+#### Parameters:
+* int newLogLevel: Can take one of the following values:
+    * (0x0): No logging.
+    * (0x1): General logging verbosity. Default value.
+    * (0x2): Informational logging verbosity.
+    * (0x3): Debug logging verbosity.
+
+#### Return Value:
+This function does not return a value and does not fail.
+
+### setCopyDepth:
+
+```C++
+void setCopyDepth(uint32_t newCopyDepth);
+
+/*
+Sets the amount of times Nosymonkey will try to determine the size of the code to be copied with heuristics.
+Nosymoney will walk the code, find all of the local calls and increase the start and end of the copied code. This function controls the amount of times this heuristic function will be ran.
+A higher value will result in more time and more bytes copied.
+/*
+
+```
+
+#### Parameters:
+* uint32_t newCopyDepth: Amount of times the heuristics will be run. Default is 1, set to 0 to disable the heuristics (If you are not using statically-linked functions).
+
+#### Return Value:
+This function does not return a value and does not fail.
+
+### setCopyCodeSize:
+
+```C++
+void setCopyCodeSize(int newCopyCodeSize);
+
+/*
+Sets the size of the maximum code copied by Nosymonkey, in bytes. 
+Since it's not possible to determine the end of a function at compile or execution time, this value hast to be determined by the user.
+/*
+
+```
+
+#### Parameters:
+* uint32_t newCopyCodeSize: Size in bytes of the code copied. Default is 0x400.
+
+#### Return Value:
+This function does not return a value and does not fail.
+
 
 ## What can I use this for?
 
