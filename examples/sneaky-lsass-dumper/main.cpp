@@ -59,7 +59,7 @@ int main(int argc, char **argv)
                         cout << (hex) << "MiniDumpWriteDump() = 0x" << retval << ". GLE = 0x" << GLEval << endl;
                         while(true)
                         {
-                            cout << "Waiting for the file handle to close..." << endl;
+                            cout << "Closing file handle..." << endl;
                             uintptr_t closeHandle = (uintptr_t) GetProcAddress(LoadLibrary("kernel32.dll"), "CloseHandle");
                             retval = execWithParams(dwPid, closeHandle, &GLEval, {remoteFil});
                             if(retval) break;

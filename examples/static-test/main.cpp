@@ -46,7 +46,8 @@ uintptr_t compareAndPrint(int times) //Calls a bunch of local calls, including o
 int main()
 {
     setCopyDepth(3);
-    setLogLevel(2);
+    setCopyCodeSize(0x1000);
+    setLogLevel(1);
     cout << copyAndExecWithParams(GetCurrentProcessId(), (LPCVOID) compareAndPrint, nullptr, {6}) << endl;
     return 0;
 }

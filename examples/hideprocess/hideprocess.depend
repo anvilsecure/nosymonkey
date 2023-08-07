@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1689342378 source:c:\users\administrator\desktop\nosymonkey\examples\hideprocess\main.cpp
+1691163183 source:c:\users\administrator\desktop\nosymonkey\examples\hideprocess\main.cpp
 	"debug.hpp"
 	"../../include/nosymonkey.hpp"
-	<Winternl.h>
+	"ntdefs.hpp"
 
 1684502230 c:\users\administrator\desktop\nosymonkey\examples\hideprocess\debug.hpp
 	<iostream>
@@ -14,4 +14,7 @@
 	<string>
 	<vector>
 	<windows.h>
+
+1691163183 c:\users\administrator\desktop\nosymonkey\examples\hideprocess\ntdefs.hpp
+	<Winternl.h>
 

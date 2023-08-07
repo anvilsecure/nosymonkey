@@ -29,6 +29,7 @@
 			<Add library="../../build/bin/nosymonkey.lib" />
 		</Linker>
 		<Unit filename="main.cpp" />
+		<Unit filename="ntdefs.hpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
