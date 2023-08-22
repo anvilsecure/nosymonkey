@@ -432,7 +432,7 @@ This function does not return a value and does not fail.
 
 ## Feedback
 
-I'm open to receiving feedback! I'm always learning so please feel free to submit issues and pull requests. I'll try to get to them as much as I can.
+I'm open to receiving feedback! I'm always learning so please feel free to submit issues and pull requests. I'll try to get to them as much as I can. Feel free to contact me at alex.popovici[[at]]()anvilsecure.com or via my socials (Twitter: @alex91dotar, Linkedin: in/alex91ar).
 
 ## Troubleshooting
 
